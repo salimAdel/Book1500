@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_library_auther_view_form" model="ir.ui.view">
+        <field name="name">library.auther.view.form</field>
+        <field name="model">library.auther</field>
+        <field name="arch" type="xml">
+            <form string="Auther">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                   
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+   <record id="auther_view_list" model="ir.ui.view">
+            <field name="name">auther.view.list</field>
+            <field name="model">library.auther</field>
+            <field name="arch" type="xml">
+                <list string="Auther View">
+                    <field name="name"/>
+                    <!-- Add your fields here -->
+                </list>
+            </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_library_auther" model="ir.actions.act_window">
+        <field name="name">Categories</field>
+        <field name="res_model">library.auther</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
