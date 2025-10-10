@@ -6,9 +6,14 @@
         <field name="model">library.book</field>
         <field name="arch" type="xml">
             <list string="Book">
-                <field name="name"/>
-                <field name="author"/>
+                <field name="name_ar"/>
+                <field name="name_en"/>
+                <field name="name_ind"/>
+                <field name="author_ar"/>
+                <field name="author_en"/>
+                <field name="author_ind"/>
                 <field name="number_of_pages"/>
+                <field name="category_id"/>
             </list>
         </field>
     </record>
@@ -21,32 +26,25 @@
             <form string="Book">
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="author"/>
+                        <field name="image" widget='image' class="oe_avatar" />
+                        <field name="name_ar"/>
+                        <field name="name_en"/>
+                        <field name="name_ind"/>
+                        <field name="author_ar"/>
+                        <field name="author_en"/>
+                        <field name="author_ind"/>
                         <field name="number_of_pages"/>
-                        <field name="category_ids" widget="many2many_tags"/>
+                        <field name="category_id"/>
+                        <field name="file_ar" />
+                        <field name="file_en" />
+                        <field name="file_ind" />
                     </group>
 
                     <group>
-                        <field name="description"/>
+                        <field name="description_ar"/>
+                        <field name="description_en"/>
+                        <field name="description_ind"/>
                     </group>
-
-                    <notebook>
-                        <page string="Book PDF">
-                            <field name="file_ids">
-                                <list editable="bottom">
-                                    <field name="lang_id"/>
-                                    <field name="pdf_file"/>
-                                </list>
-                                <form string="Book File">
-                                    <group>
-                                        <field name="lang_id"/>
-                                        <field name="pdf_file" filename="filename" widget="pdf"/>
-                                    </group>
-                                </form>
-                            </field>
-                        </page>
-                    </notebook>
                 </sheet>
             </form>
         </field>

@@ -8,7 +8,9 @@
             <form string="Category">
                 <sheet>
                     <group>
-                        <field name="name"/>
+                        <field name="name_ar"/>
+                        <field name="name_en"/>
+                        <field name="name_ind"/>
                     </group>
                    
                 </sheet>
@@ -22,7 +24,9 @@
             <field name="model">library.category</field>
             <field name="arch" type="xml">
                 <list string="Category View">
-                    <field name="name"/>
+                    <field name="name_ar"/>
+                    <field name="name_en"/>
+                    <field name="name_ind"/>
                     <!-- Add your fields here -->
                 </list>
             </field>

@@ -5,5 +5,6 @@ class Category(models.Model):
     _name = 'library.category'
     _description = "Book Category"
 
-    name = fields.Char(string='Name', required=True, translate=True)
-    book_ids = fields.Many2many('library.book', string="Books")
+    name_ar = fields.Char(string='Name Arbic')
+    name_en = fields.Char(string='Name English')
+    name_ind = fields.Char(string='Name Indonesia')
