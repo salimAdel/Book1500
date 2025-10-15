@@ -4,7 +4,41 @@ from odoo.http import request
 import json
 import base64
 
+def _get_attachment(record_id, file_name):
+    base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+    attachment_path = f"{base_url}/api/library/{record_id}/{file_name}"
+    return attachment_path
+
+def _get_attachment_binary_details(res_id, file_name):
+    attachment_sudo = request.env['ir.attachment'].sudo().search([('res_model', '=', 'library.book'), ('res_id', '=', res_id), ('res_field', '=', file_name)], limit=1)
+    if not attachment_sudo:
+        return {
+            'name': "",
+            'type': "",
+            'mimetype': "",
+            'datas': ""
+        }
+    details = {
+        'id': attachment_sudo.id,
+        'name': attachment_sudo.name or '',
+        'type': attachment_sudo.type or '',
+        'mimetype': attachment_sudo.mimetype or '',
+        'datas': f"data:{attachment_sudo.mimetype};base64,{attachment_sudo.datas.decode('utf-8')}" if attachment_sudo.datas else ""
+    }
+    return details
+
+def safe_val(val):
+    return val if val not in [False, '', None] else None
+    
 class LibraryBookAPI(http.Controller):
+
+    @http.route('/api/library/<int:id>/<string:file_name>', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_image (self, id, file_name, **kwargs):
+        attachment = _get_attachment_binary_details(id, file_name)
+        return http.Response(
+            json.dumps(attachment, ensure_ascii=False),
+            content_type='application/json'
+        )
 
     # ✅ Get all books
     @http.route('/api/library/book', type='http', auth='public', methods=['GET'], csrf=False)
@@ -14,18 +48,19 @@ class LibraryBookAPI(http.Controller):
         for book in books:
             data.append({
                 'id': book.id,
-                'name_ar': book.name_ar,
-                'name_en': book.name_en,
-                'name_ind': book.name_ind,
-                'author_ar': book.author_ar,
-                'author_en': book.author_en,
-                'author_ind': book.author_ind,
-                'number_of_pages': book.number_of_pages,
+                'name_ar': safe_val(book.name_ar),
+                'name_en': safe_val(book.name_en),
+                'name_ind': safe_val(book.name_ind),
+                'author_ar': safe_val(book.author_ar),
+                'author_en': safe_val(book.author_en),
+                'author_ind': safe_val(book.author_ind),
+                'number_of_pages': safe_val(book.number_of_pages),
                 'category_id': book.category_id.id if book.category_id else False,
                 'category_name': book.category_id.name_en if book.category_id else '',
-                'description_ar': book.description_ar,
-                'description_en': book.description_en,
-                'description_ind': book.description_ind,
+                'description_ar': safe_val(book.description_ar),
+                'description_en': safe_val(book.description_en),
+                'description_ind': safe_val(book.description_ind),
+                'image': _get_attachment(book.id, 'image')if book.image else None,
             })
         return http.Response(
             json.dumps({'status': 200, 'data': data}, ensure_ascii=False),
@@ -43,18 +78,22 @@ class LibraryBookAPI(http.Controller):
             )
         data = {
             'id': book.id,
-            'name_ar': book.name_ar,
-            'name_en': book.name_en,
-            'name_ind': book.name_ind,
-            'author_ar': book.author_ar,
-            'author_en': book.author_en,
-            'author_ind': book.author_ind,
-            'number_of_pages': book.number_of_pages,
-            'category_id': book.category_id.id if book.category_id else False,
+            'name_ar': safe_val(book.name_ar),
+            'name_en': safe_val(book.name_en),
+            'name_ind': safe_val(book.name_ind),
+            'author_ar': safe_val(book.author_ar),
+            'author_en': safe_val(book.author_en),
+            'author_ind': safe_val(book.author_ind),
+            'number_of_pages': safe_val(book.number_of_pages),
+            'category_id': book.category_id.id if book.category_id else None,
             'category_name': book.category_id.name_en if book.category_id else '',
-            'description_ar': book.description_ar,
-            'description_en': book.description_en,
-            'description_ind': book.description_ind,
+            'description_ar': safe_val(book.description_ar),
+            'description_en': safe_val(book.description_en),
+            'description_ind': safe_val(book.description_ind),
+            'image': _get_attachment(book.id, 'image')if book.image else None,
+            'file_ar': _get_attachment(book.id, 'file_ar')if book.file_ar else None,
+            'file_en': _get_attachment(book.id, 'file_en')if book.file_en else None,
+            'file_ind': _get_attachment(book.id, 'file_ind')if book.file_ind else None,
         }
         return http.Response(
             json.dumps({'status': 200, 'data': data}, ensure_ascii=False),

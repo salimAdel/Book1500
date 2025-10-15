@@ -3,6 +3,8 @@ from odoo import http
 from odoo.http import request
 import json
 
+def safe_val(val):
+    return val if val not in [False, '', None] else None
 class LibraryAdvertisementAPI(http.Controller):
 
     # 📌 Get all advertisements
@@ -11,9 +13,9 @@ class LibraryAdvertisementAPI(http.Controller):
         advertisements = request.env['library.advertisement'].sudo().search([])
         data = [{
             'id': c.id,
-            'name_ar': c.name_ar,
-            'name_en': c.name_en,
-            'name_ind': c.name_ind,
+            'name_ar': safe_val(c.name_ar),
+            'name_en': safe_val(c.name_en),
+            'name_ind': safe_val(c.name_ind),
         } for c in advertisements]
 
         return http.Response(
@@ -33,9 +35,9 @@ class LibraryAdvertisementAPI(http.Controller):
 
         data = {
             'id': cat.id,
-            'name_ar': cat.name_ar,
-            'name_en': cat.name_en,
-            'name_ind': cat.name_ind,
+            'name_ar': safe_val(cat.name_ar),
+            'name_en': safe_val(cat.name_en),
+            'name_ind': safe_val(cat.name_ind),
         }
         return http.Response(
             json.dumps({'status': 200, 'data': data}),

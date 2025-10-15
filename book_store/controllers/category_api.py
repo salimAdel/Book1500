@@ -3,6 +3,10 @@ from odoo import http
 from odoo.http import request
 import json
 
+
+def safe_val(val):
+    return val if val not in [False, '', None] else None
+
 class LibraryCategoryAPI(http.Controller):
 
     # 📌 Get all categories
@@ -10,11 +14,11 @@ class LibraryCategoryAPI(http.Controller):
     def get_categories(self, **kwargs):
         categories = request.env['library.category'].sudo().search([])
         data = [{
-            'id': c.id,
-            'name_ar': c.name_ar,
-            'name_en': c.name_en,
-            'name_ind': c.name_ind,
-        } for c in categories]
+            'id': cat.id,
+            'name_ar': safe_val(cat.name_ar),
+            'name_en': safe_val(cat.name_en),
+            'name_ind': safe_val(cat.name_ind),
+        } for cat in categories]
 
         return http.Response(
             json.dumps({'status': 200, 'data': data}),
@@ -33,9 +37,9 @@ class LibraryCategoryAPI(http.Controller):
 
         data = {
             'id': cat.id,
-            'name_ar': cat.name_ar,
-            'name_en': cat.name_en,
-            'name_ind': cat.name_ind,
+            'name_ar': safe_val(cat.name_ar),
+            'name_en': safe_val(cat.name_en),
+            'name_ind': safe_val(cat.name_ind),
         }
         return http.Response(
             json.dumps({'status': 200, 'data': data}),
