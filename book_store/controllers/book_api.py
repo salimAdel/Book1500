@@ -34,6 +34,7 @@ class LibraryBookAPI(http.Controller):
 
     @http.route('/api/library/<int:id>/<string:file_name>', type='http', auth='public', methods=['GET'], csrf=False)
     def get_image (self, id, file_name, **kwargs):
+        
         attachment = _get_attachment_binary_details(id, file_name)
         return http.Response(
             json.dumps(attachment, ensure_ascii=False),
@@ -55,12 +56,15 @@ class LibraryBookAPI(http.Controller):
                 'author_en': safe_val(book.author_en),
                 'author_ind': safe_val(book.author_ind),
                 'number_of_pages': safe_val(book.number_of_pages),
-                'category_id': book.category_id.id if book.category_id else False,
+                'category_id': book.category_id.id if book.category_id else None,
                 'category_name': book.category_id.name_en if book.category_id else '',
                 'description_ar': safe_val(book.description_ar),
                 'description_en': safe_val(book.description_en),
                 'description_ind': safe_val(book.description_ind),
                 'image': _get_attachment(book.id, 'image')if book.image else None,
+                'file_ar': _get_attachment(book.id, 'file_ar')if book.file_ar else None,
+                'file_en': _get_attachment(book.id, 'file_en')if book.file_en else None,
+                'file_ind': _get_attachment(book.id, 'file_ind')if book.file_ind else None,
             })
         return http.Response(
             json.dumps({'status': 200, 'data': data}, ensure_ascii=False),
