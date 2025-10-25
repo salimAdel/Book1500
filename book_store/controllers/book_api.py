@@ -41,35 +41,93 @@ class LibraryBookAPI(http.Controller):
             content_type='application/json'
         )
 
-    # ✅ Get all books
+    # ✅ Get all books (with pagination, sorting, and filtering)
     @http.route('/api/library/book', type='http', auth='public', methods=['GET'], csrf=False)
     def get_books(self, **kwargs):
-        books = request.env['library.book'].sudo().search([])
-        data = []
-        for book in books:
-            data.append({
-                'id': book.id,
-                'name_ar': safe_val(book.name_ar),
-                'name_en': safe_val(book.name_en),
-                'name_ind': safe_val(book.name_ind),
-                'author_ar': safe_val(book.author_ar),
-                'author_en': safe_val(book.author_en),
-                'author_ind': safe_val(book.author_ind),
-                'number_of_pages': safe_val(book.number_of_pages),
-                'category_id': book.category_id.id if book.category_id else None,
-                'category_name': book.category_id.name_en if book.category_id else '',
-                'description_ar': safe_val(book.description_ar),
-                'description_en': safe_val(book.description_en),
-                'description_ind': safe_val(book.description_ind),
-                'image': _get_attachment(book.id, 'image')if book.image else None,
-                'file_ar': _get_attachment(book.id, 'file_ar')if book.file_ar else None,
-                'file_en': _get_attachment(book.id, 'file_en')if book.file_en else None,
-                'file_ind': _get_attachment(book.id, 'file_ind')if book.file_ind else None,
-            })
-        return http.Response(
-            json.dumps({'status': 200, 'data': data}, ensure_ascii=False),
-            content_type='application/json'
-        )
+        try:
+            Book = request.env['library.book'].sudo()
+
+            # 👇 Pagination
+            page = int(kwargs.get('page', 1))
+            limit = int(kwargs.get('limit', 10))
+            if page < 1:
+                page = 1
+            if limit < 1:
+                limit = 10
+            offset = (page - 1) * limit
+
+            # 👇 Filtering
+            name_filter = kwargs.get('name', '').strip()
+            category_id = kwargs.get('category_id')
+
+            domain = []
+            if name_filter:
+                domain += ['|', '|',
+                        ('name_ar', 'ilike', name_filter),
+                        ('name_en', 'ilike', name_filter),
+                        ('name_ind', 'ilike', name_filter)]
+            if category_id:
+                domain.append(('category_id', '=', int(category_id)))
+
+            sort_by = kwargs.get('sort_by', 'id')      # مثال: name_en, author_en, number_of_pages
+            order = kwargs.get('order', 'asc')         # asc أو desc
+            if order not in ['asc', 'desc']:
+                order = 'asc'
+            order_by = f"{sort_by} {order}"
+
+            total_books = Book.search_count(domain)
+            books = Book.search(domain, limit=limit, offset=offset, order=order_by)
+
+            data = []
+            for book in books:
+                data.append({
+                    'id': book.id,
+                    'name_ar': safe_val(book.name_ar),
+                    'name_en': safe_val(book.name_en),
+                    'name_ind': safe_val(book.name_ind),
+                    'author_ar': safe_val(book.author_ar),
+                    'author_en': safe_val(book.author_en),
+                    'author_ind': safe_val(book.author_ind),
+                    'number_of_pages': safe_val(book.number_of_pages),
+                    'category_id': book.category_id.id if book.category_id else None,
+                    'category_name': book.category_id.name_en if book.category_id else '',
+                    'description_ar': safe_val(book.description_ar),
+                    'description_en': safe_val(book.description_en),
+                    'description_ind': safe_val(book.description_ind),
+                    'image': _get_attachment(book.id, 'image') if book.image else None,
+                    'file_ar': _get_attachment(book.id, 'file_ar') if book.file_ar else None,
+                    'file_en': _get_attachment(book.id, 'file_en') if book.file_en else None,
+                    'file_ind': _get_attachment(book.id, 'file_ind') if book.file_ind else None,
+                })
+
+            total_pages = (total_books + limit - 1) // limit
+
+            response_data = {
+                'status': 200,
+                'page': page,
+                'limit': limit,
+                'total_books': total_books,
+                'total_pages': total_pages,
+                'sort_by': sort_by,
+                'order': order,
+                'filters': {
+                    'name': name_filter,
+                    'category_id': category_id
+                },
+                'data': data
+            }
+
+            return http.Response(
+                json.dumps(response_data, ensure_ascii=False),
+                content_type='application/json'
+            )
+
+        except Exception as e:
+            return http.Response(
+                json.dumps({'status': 500, 'error': str(e)}, ensure_ascii=False),
+                content_type='application/json'
+            )
+
 
     # ✅ Get single book by ID
     @http.route('/api/library/book/<int:id>', type='http', auth='public', methods=['GET'], csrf=False)
