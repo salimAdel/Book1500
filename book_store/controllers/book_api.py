@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import date
 from odoo import http
 from odoo.http import request
 import json
@@ -95,10 +96,8 @@ class LibraryBookAPI(http.Controller):
                     'description_en': safe_val(book.description_en),
                     'description_ind': safe_val(book.description_ind),
                     'image': _get_attachment(book.id, 'image') if book.image else None,
-                    'file_ar': _get_attachment(book.id, 'file_ar') if book.file_ar else None,
-                    'file_en': _get_attachment(book.id, 'file_en') if book.file_en else None,
-                    'file_ind': _get_attachment(book.id, 'file_ind') if book.file_ind else None,
-                })
+                    'book_views_count': book.book_views_count,
+                    })
 
             total_pages = (total_books + limit - 1) // limit
 
@@ -129,38 +128,57 @@ class LibraryBookAPI(http.Controller):
             )
 
 
-    # ✅ Get single book by ID
-    @http.route('/api/library/book/<int:id>', type='http', auth='public', methods=['GET'], csrf=False)
-    def get_book(self, id, **kwargs):
-        book = request.env['library.book'].sudo().browse(id)
-        if not book.exists():
-            return http.Response(
-                json.dumps({'status': 404, 'error': 'Book not found'}),
-                content_type='application/json'
-            )
-        data = {
-            'id': book.id,
-            'name_ar': safe_val(book.name_ar),
-            'name_en': safe_val(book.name_en),
-            'name_ind': safe_val(book.name_ind),
-            'author_ar': safe_val(book.author_ar),
-            'author_en': safe_val(book.author_en),
-            'author_ind': safe_val(book.author_ind),
-            'number_of_pages': safe_val(book.number_of_pages),
-            'category_id': book.category_id.id if book.category_id else None,
-            'category_name': book.category_id.name_en if book.category_id else '',
-            'description_ar': safe_val(book.description_ar),
-            'description_en': safe_val(book.description_en),
-            'description_ind': safe_val(book.description_ind),
-            'image': _get_attachment(book.id, 'image')if book.image else None,
-            'file_ar': _get_attachment(book.id, 'file_ar')if book.file_ar else None,
-            'file_en': _get_attachment(book.id, 'file_en')if book.file_en else None,
-            'file_ind': _get_attachment(book.id, 'file_ind')if book.file_ind else None,
-        }
-        return http.Response(
-            json.dumps({'status': 200, 'data': data}, ensure_ascii=False),
-            content_type='application/json'
-        )
+    # # ✅ Get single book by ID
+    # @http.route('/api/library/book/<int:id>', type='http', auth='user', methods=['GET'], csrf=False)
+    # def get_book(self, id, **kwargs):
+    #     user = request.env.user
+    #     subscription = request.env['subscription'].sudo().search([('user_id', '=', user.id)], limit=1)
+    #     if not subscription:
+    #         return http.Response(
+    #             json.dumps({'status': 403, 'error': 'No subscription found'}),
+    #             content_type='application/json'
+    #         )
+
+    #     today = date.today()
+    #     if not (subscription.start_date and subscription.start_date <= today <= subscription.end_date):
+    #         return http.Response(
+    #             json.dumps({'status': 403, 'error': 'Access denied. Active subscription required.'}),
+    #             content_type='application/json'
+    #         )
+    #     book = request.env['library.book'].sudo().browse(id)
+    #     if not book.exists():
+    #         return http.Response(
+    #             json.dumps({'status': 404, 'error': 'Book not found'}),
+    #             content_type='application/json'
+    #         )
+    #     book.env['book.views'].sudo().create({
+    #         'user_id': user.id,
+    #         'book_id': book.id,
+    #     })
+    #     data = {
+    #         'id': book.id,
+    #         'name_ar': safe_val(book.name_ar),
+    #         'name_en': safe_val(book.name_en),
+    #         'name_ind': safe_val(book.name_ind),
+    #         'author_ar': safe_val(book.author_ar),
+    #         'author_en': safe_val(book.author_en),
+    #         'author_ind': safe_val(book.author_ind),
+    #         'number_of_pages': safe_val(book.number_of_pages),
+    #         'category_id': book.category_id.id if book.category_id else None,
+    #         'category_name': book.category_id.name_en if book.category_id else '',
+    #         'description_ar': safe_val(book.description_ar),
+    #         'description_en': safe_val(book.description_en),
+    #         'description_ind': safe_val(book.description_ind),
+    #         'image': book.image if book.image else None,
+    #         'book_views_count': book.book_views_count,
+    #         'file_ar': book.file_ar if book.file_ar else None,
+    #         'file_en': book.file_en if book.file_en else None,
+    #         'file_ind': book.file_ind if book.file_ind else None,
+    #     }
+    #     return http.Response(
+    #         json.dumps({'status': 200, 'data': data}, ensure_ascii=False),
+    #         content_type='application/json'
+    #     )
 
     # ✅ Create new book
     @http.route('/api/library/book', type='http', auth='public', methods=['POST'], csrf=False)

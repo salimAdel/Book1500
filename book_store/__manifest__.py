@@ -6,9 +6,9 @@
     "depends": ["base"],
     "data": [
         "security/ir.model.access.csv",
-        'views/category_views.xml',
-        'views/book_views.xml',
-        'views/menus.xml',
+        "views/book_views.xml",
+        "views/category_views.xml",
+        "views/menus.xml",
     ],
     "assets": {},
     "license": "LGPL-3",

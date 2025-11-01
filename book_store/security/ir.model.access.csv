@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_category,access_category,model_library_category,base.group_user,1,1,1,1
 access_book,access_book,model_library_book,base.group_user,1,1,1,1
 access_library_advertisement_manager,library_advertisement_manager,model_library_advertisement,,1,1,1,1
+access_subscription_manager,subscription_manager,model_subscription,,1,1,1,1
