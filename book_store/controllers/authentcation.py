@@ -7,6 +7,9 @@ from odoo.http import request
 from odoo.exceptions import AccessDenied
 from odoo.exceptions import ValidationError
 
+def safe_val(val):
+    return val if val not in [False, '', None] else None
+
 class AuthenticationController(http.Controller):
     @http.route('/api/auth/login', type='json', auth='public', methods=['POST'], csrf=False, cors='*')
     def api_login(self, **kw):
@@ -31,13 +34,13 @@ class AuthenticationController(http.Controller):
             return {'message': _("unexpected error")}
         
         return {'message': _("success login"), 'user':{
-            'name': user_record.name,
-            'login': user_record.login,
-            'email': user_record.email,
+            'name': safe_val(user_record.name),
+            'login': safe_val(user_record.login),
+            'email': safe_val(user_record.email),
             'active': user_record.active,
             'country' : user_record.country_id.name if user_record.country_id else None,
             'city' : user_record.city if user_record.city else None,
-            'language' : user_record.lang,
+            'language' : safe_val(user_record.lang),
             'image_1920' : user_record.image_1920 if user_record.image_1920 else None
         }}
 
@@ -84,13 +87,13 @@ class AuthenticationController(http.Controller):
                 'message': 'User created successfully',
                 'data': {
                     'id': user.id,
-                    'name': user.name,
-                    'login': user.login,
-                    'email': user.email,
+                    'name': safe_val(user.name),
+                    'login': safe_val(user.login),
+                    'email': safe_val(user.email),
                     'active': user.active,
                     'country': user.country_id.name if user.country_id else None,
-                    'city': user.city,
-                    'language': user.lang,
+                    'city': safe_val(user.city),
+                    'language': safe_val(user.lang),
                     'image_1920' : user.image_1920 if user.image_1920 else None
                 }
             })
@@ -124,13 +127,13 @@ class AuthenticationController(http.Controller):
                 json.dumps({
                 'status': 200,
                 'data': {
-                    'name': user.name,
-                    'login': user.login,
-                    'email': user.email,
+                    'name': safe_val(user.name),
+                    'login': safe_val(user.login),
+                    'email': safe_val(user.email),
                     'active': user.active,
                     'country' : user.country_id.name if user.country_id else None,
-                    'city' : user.city,
-                    'language' : user.lang,
+                    'city' : safe_val(user.city),
+                    'language' : safe_val(user.lang),
                     'image_1920' : image_base64
                 }
             }),
@@ -236,13 +239,13 @@ class AuthenticationController(http.Controller):
                 json.dumps({
                     'status': 200,
                     'data': {
-                        'name': user.name,
-                        'login': user.login,
-                        'email': user.email,
+                        'name': safe_val(user.name),
+                        'login': safe_val(user.login),
+                        'email': safe_val(user.email),
                         'active': user.active,
                         'country': user.country_id.name if user.country_id else None,
-                        'city': user.city,
-                        'language': user.lang,
+                        'city': safe_val(user.city),
+                        'language': safe_val(user.lang),
                         'image_1920': image_base64
                     }
                 }),

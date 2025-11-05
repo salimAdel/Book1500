@@ -4,6 +4,8 @@ from odoo import http
 from odoo.http import request
 
 
+def safe_val(val):
+    return val if val not in [False, '', None] else None
 class SubscriptionController(http.Controller):
     @http.route('/api/library/subscribe', type='http', auth='user', methods=['POST'], csrf=False)
     def create_subscription(self, **kwargs):
@@ -23,10 +25,9 @@ class SubscriptionController(http.Controller):
 
         response_data = {
             'id': subscription.id,
-            'user_id': subscription.user_id.id,
             'start_date': subscription.start_date.isoformat() if subscription.start_date else None,
             'end_date': subscription.end_date.isoformat() if subscription.end_date else None,
-            'subscription_type': subscription.subscription_type,
+            'subscription_type': safe_val(subscription.subscription_type),
         }
 
         return http.Response(
@@ -40,10 +41,9 @@ class SubscriptionController(http.Controller):
         subscriptions = request.env['subscription'].sudo().search([('user_id', '=', user.id)])
         data = [{
             'id': sub.id,
-            'user_id': sub.user_id.id,
             'start_date': sub.start_date.isoformat() if sub.start_date else None,
             'end_date': sub.end_date.isoformat() if sub.end_date else None,
-            'subscription_type': sub.subscription_type,
+            'subscription_type': safe_val(sub.subscription_type),
         } for sub in subscriptions]
 
         return http.Response(
@@ -66,7 +66,7 @@ class SubscriptionController(http.Controller):
             'user_id': subscription.user_id.id,
             'start_date': subscription.start_date.isoformat() if subscription.start_date else None,
             'end_date': subscription.end_date.isoformat() if subscription.end_date else None,
-            'subscription_type': subscription.subscription_type,
+            'subscription_type': safe_val(subscription.subscription_type),
         }
 
         return http.Response(
