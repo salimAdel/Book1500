@@ -155,6 +155,11 @@ class LibraryBookAPI(http.Controller):
             'user_id': user.id,
             'book_id': book.id,
         })
+        image = book.image.decode('utf-8') if book.image else None
+        file_ar = book.file_ar.decode('utf-8') if book.file_ar else None
+        file_en = book.file_en.decode('utf-8') if book.file_en else None
+        file_ind = book.file_ind.decode('utf-8') if book.file_ind else None
+
         data = {
             'id': book.id,
             'name_ar': safe_val(book.name_ar),
@@ -169,11 +174,11 @@ class LibraryBookAPI(http.Controller):
             'description_ar': safe_val(book.description_ar),
             'description_en': safe_val(book.description_en),
             'description_ind': safe_val(book.description_ind),
-            'image': book.image if book.image else None,
+            'image': image,
             'book_views_count': book.book_views_count,
-            'file_ar': book.file_ar if book.file_ar else None,
-            'file_en': book.file_en if book.file_en else None,
-            'file_ind': book.file_ind if book.file_ind else None,
+            'file_ar': file_ar,
+            'file_en': file_en,
+            'file_ind': file_ind,
         }
         return http.Response(
             json.dumps({'status': 200, 'data': data}, ensure_ascii=False),
