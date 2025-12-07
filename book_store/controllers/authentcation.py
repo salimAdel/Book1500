@@ -44,7 +44,7 @@ class AuthenticationController(http.Controller):
             'image_1920' : user_record.image_1920 if user_record.image_1920 else None
         }}
 
-    @http.route('/api/users/create', type='http', auth='user', methods=['POST'], csrf=False)
+    @http.route('/api/users/create', type='http', auth='public', methods=['POST'], csrf=False)
     def create_user(self, **kwargs):
         try:
             # محاولة الحصول على البيانات من JSON أو من form-data
