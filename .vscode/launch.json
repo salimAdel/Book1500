@@ -10,7 +10,7 @@
             // "console": "integratedTerminal",
 
             "args": [
-                "--config=/home/salim/odoo/configration/Book_Store.conf",
+                "--config=/home/salim/odoo/custom_addons/odooApps18/Book1500/.vscode/odoo.conf",
                 "-u", "book_store"
 
         ]

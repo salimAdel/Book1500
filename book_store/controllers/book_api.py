@@ -132,19 +132,13 @@ class LibraryBookAPI(http.Controller):
     @http.route('/api/library/book/<int:id>', type='http', auth='user', methods=['GET'], csrf=False)
     def get_book(self, id, **kwargs):
         user = request.env.user
-        # subscription = request.env['subscription'].sudo().search([('user_id', '=', user.id)], limit=1)
-        # if not subscription:
-        #     return http.Response(
-        #         json.dumps({'status': 403, 'error': 'No subscription found'}),
-        #         content_type='application/json'
-        #     )
 
-        # today = date.today()
-        # if not (subscription.start_date and subscription.start_date <= today <= subscription.end_date):
-        #     return http.Response(
-        #         json.dumps({'status': 403, 'error': 'Access denied. Active subscription required.'}),
-        #         content_type='application/json'
-        #     )
+        today = date.today()
+        if not (user.subscription_end_date and user.subscription_end_date > today ):
+            return http.Response(
+                json.dumps({'status': 403, 'error': 'Access denied. Active subscription required.'}),
+                content_type='application/json'
+            )
         book = request.env['library.book'].sudo().browse(id)
         if not book.exists():
             return http.Response(

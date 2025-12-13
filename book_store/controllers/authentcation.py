@@ -34,6 +34,7 @@ class AuthenticationController(http.Controller):
             return {'message': _("unexpected error")}
         
         return {'message': _("success login"), 'user':{
+            'id': user_record.id,
             'name': safe_val(user_record.name),
             'login': safe_val(user_record.login),
             'email': safe_val(user_record.email),
@@ -41,6 +42,9 @@ class AuthenticationController(http.Controller):
             'country' : user_record.country_id.name if user_record.country_id else None,
             'city' : user_record.city if user_record.city else None,
             'language' : safe_val(user_record.lang),
+            'subscription_start_date' : safe_val(user_record.subscription_start_date),
+            'subscription_end_date' : safe_val(user_record.subscription_end_date),
+            'subscription_type' : safe_val(user_record.subscription_type),
             'image_1920' : user_record.image_1920 if user_record.image_1920 else None
         }}
 
@@ -79,6 +83,9 @@ class AuthenticationController(http.Controller):
                 'country_id': int(data['country_id']) if data.get('country_id') else False,
                 'city': data.get('city'),
                 'lang': data.get('language'),
+                'subscription_start_date': data.get('subscription_start_date'),
+                'subscription_end_date': data.get('subscription_end_date'),
+                'subscription_type': data.get('subscription_type'),
                 'image_1920': image_data,
             })
 
@@ -94,6 +101,9 @@ class AuthenticationController(http.Controller):
                     'country': user.country_id.name if user.country_id else None,
                     'city': safe_val(user.city),
                     'language': safe_val(user.lang),
+                    'subscription_start_date' : safe_val(user.subscription_start_date),
+                    'subscription_end_date' : safe_val(user.subscription_end_date),
+                    'subscription_type' : safe_val(user.subscription_type),
                     'image_1920' : user.image_1920 if user.image_1920 else None
                 }
             })
@@ -127,6 +137,7 @@ class AuthenticationController(http.Controller):
                 json.dumps({
                 'status': 200,
                 'data': {
+                    'id': user.id,
                     'name': safe_val(user.name),
                     'login': safe_val(user.login),
                     'email': safe_val(user.email),
@@ -134,6 +145,9 @@ class AuthenticationController(http.Controller):
                     'country' : user.country_id.name if user.country_id else None,
                     'city' : safe_val(user.city),
                     'language' : safe_val(user.lang),
+                    'subscription_start_date' : safe_val(user.subscription_start_date),
+                    'subscription_end_date' : safe_val(user.subscription_end_date),
+                    'subscription_type' : safe_val(user.subscription_type),
                     'image_1920' : image_base64
                 }
             }),
@@ -231,6 +245,9 @@ class AuthenticationController(http.Controller):
             user.country_id = data.get('country_id', user.country_id)
             user.city = data.get('city', user.city)
             user.lang = data.get('language', user.lang)
+            user.subscription_start_date = data.get('subscription_start_date'),
+            user.subscription_end_date = data.get('subscription_end_date'),
+            user.subscription_type = data.get('subscription_type'),
             user.image_1920 = data.get('image_1920', user.image_1920)
 
             image_base64 = user.image_1920.decode('utf-8') if user.image_1920 else None
@@ -239,6 +256,7 @@ class AuthenticationController(http.Controller):
                 json.dumps({
                     'status': 200,
                     'data': {
+                        'id': user.id,
                         'name': safe_val(user.name),
                         'login': safe_val(user.login),
                         'email': safe_val(user.email),

@@ -5,3 +5,4 @@ from . import advertisement
 from . import subscription
 from . import favorite
 from . import book_views
+from . import res_user  
