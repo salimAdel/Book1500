@@ -8,4 +8,6 @@ class ResUser(models.Model):
     subscription_end_date = fields.Date(string="Subscription End Date")
     subscription_type = fields.Selection([
         ('monthly', 'Monthly'),
-        ('yearly', 'Yearly'),], string='Subscription Type')
+        ('yearly', 'Yearly'),], string='Subscription Type', 
+        default='monthly'
+        )

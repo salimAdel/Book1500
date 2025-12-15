@@ -247,9 +247,9 @@ class AuthenticationController(http.Controller):
             user.country_id = data.get('country_id', user.country_id)
             user.city = data.get('city', user.city)
             user.lang = data.get('language', user.lang)
-            user.subscription_start_date = data.get('subscription_start_date')
-            user.subscription_end_date = data.get('subscription_end_date')
-            user.subscription_type = data.get('subscription_type')
+            user.subscription_start_date = data.get('subscription_start_date', user.subscription_start_date)
+            user.subscription_end_date = data.get('subscription_end_date', user.subscription_end_date)
+            user.subscription_type = data.get('subscription_type', user.subscription_type)
             user.image_1920 = data.get('image_1920', user.image_1920)
 
             image_base64 = user.image_1920.decode('utf-8') if user.image_1920 else None
