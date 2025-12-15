@@ -9,6 +9,8 @@ from odoo.exceptions import ValidationError
 
 def safe_val(val):
     return val if val not in [False, '', None] else None
+def safe_date(val):
+    return val.strftime('%Y-%m-%d') if val else None
 
 class AuthenticationController(http.Controller):
     @http.route('/api/auth/login', type='json', auth='public', methods=['POST'], csrf=False, cors='*')
@@ -42,8 +44,8 @@ class AuthenticationController(http.Controller):
             'country' : user_record.country_id.name if user_record.country_id else None,
             'city' : user_record.city if user_record.city else None,
             'language' : safe_val(user_record.lang),
-            'subscription_start_date' : safe_val(user_record.subscription_start_date),
-            'subscription_end_date' : safe_val(user_record.subscription_end_date),
+            'subscription_start_date' : safe_date(user_record.subscription_start_date),
+            'subscription_end_date' : safe_date(user_record.subscription_end_date),
             'subscription_type' : safe_val(user_record.subscription_type),
             'image_1920' : user_record.image_1920 if user_record.image_1920 else None
         }}
@@ -101,8 +103,8 @@ class AuthenticationController(http.Controller):
                     'country': user.country_id.name if user.country_id else None,
                     'city': safe_val(user.city),
                     'language': safe_val(user.lang),
-                    'subscription_start_date' : safe_val(user.subscription_start_date),
-                    'subscription_end_date' : safe_val(user.subscription_end_date),
+                    'subscription_start_date' : safe_date(user.subscription_start_date),
+                    'subscription_end_date' : safe_date(user.subscription_end_date),
                     'subscription_type' : safe_val(user.subscription_type),
                     'image_1920' : user.image_1920 if user.image_1920 else None
                 }
@@ -145,8 +147,8 @@ class AuthenticationController(http.Controller):
                     'country' : user.country_id.name if user.country_id else None,
                     'city' : safe_val(user.city),
                     'language' : safe_val(user.lang),
-                    'subscription_start_date' : safe_val(user.subscription_start_date),
-                    'subscription_end_date' : safe_val(user.subscription_end_date),
+                    'subscription_start_date' : safe_date(user.subscription_start_date),
+                    'subscription_end_date' : safe_date(user.subscription_end_date),
                     'subscription_type' : safe_val(user.subscription_type),
                     'image_1920' : image_base64
                 }
@@ -264,8 +266,8 @@ class AuthenticationController(http.Controller):
                         'country': user.country_id.name if user.country_id else None,
                         'city': safe_val(user.city),
                         'language': safe_val(user.lang),
-                        'subscription_start_date' : safe_val(user.subscription_start_date),
-                        'subscription_end_date' : safe_val(user.subscription_end_date),
+                        'subscription_start_date' : safe_date(user.subscription_start_date),
+                        'subscription_end_date' : safe_date(user.subscription_end_date),
                         'subscription_type' : safe_val(user.subscription_type),
                         'image_1920': image_base64
                     }
