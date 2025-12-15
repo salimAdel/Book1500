@@ -264,6 +264,9 @@ class AuthenticationController(http.Controller):
                         'country': user.country_id.name if user.country_id else None,
                         'city': safe_val(user.city),
                         'language': safe_val(user.lang),
+                        'subscription_start_date' : safe_val(user.subscription_start_date),
+                        'subscription_end_date' : safe_val(user.subscription_end_date),
+                        'subscription_type' : safe_val(user.subscription_type),
                         'image_1920': image_base64
                     }
                 }),
