@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_users_form_inherit_is_admin" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.is.admin</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='login']" position="after">
+                <field name="is_admin"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Subscription Info">
+                    <group>
+                        <field name="subscription_start_date"/>
+                        <field name="subscription_end_date"/>
+                        <field name="subscription_type"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

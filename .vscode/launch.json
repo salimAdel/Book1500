@@ -6,14 +6,13 @@
             "type": "python",
             "request": "launch",
             "program": "/home/salim/odoo/odoo18/odoo-bin",
-            "console": "internalConsole",
-            // "console": "integratedTerminal",
-
+            // "console": "internalConsole",
+            "console": "integratedTerminal",
             "args": [
                 "--config=/home/salim/odoo/custom_addons/odooApps18/Book1500/.vscode/odoo.conf",
-                "-u", "book_store"
-
-        ]
+                "-u",
+                "book_store"
+            ]
         }
     ]
 }

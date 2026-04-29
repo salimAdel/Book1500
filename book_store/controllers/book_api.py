@@ -134,9 +134,9 @@ class LibraryBookAPI(http.Controller):
         user = request.env.user
 
         today = date.today()
-        if not (user.subscription_end_date and user.subscription_end_date > today ):
+        if not (user.is_admin or (user.subscription_end_date and user.subscription_end_date > today)):
             return http.Response(
-                json.dumps({'status': 403, 'error': 'Access denied. Active subscription required.'}),
+                json.dumps({'status': 403, 'error': 'Access denied. Active subscription or Admin access required.'}),
                 content_type='application/json'
             )
         book = request.env['library.book'].sudo().browse(id)
@@ -270,3 +270,62 @@ class LibraryBookAPI(http.Controller):
         )
 
 
+    @http.route('/api/library/statistics', type='http', auth='user', methods=['GET'], csrf=False)
+    def get_statistics(self, **kwargs):
+        user = request.env.user
+        if not user.is_admin:
+            return http.Response(
+                json.dumps({'status': 403, 'error': 'Admin access required.'}),
+                content_type='application/json'
+            )
+        try:
+            # 👇 Date Filtering
+            start_date = kwargs.get('start_date')
+            end_date = kwargs.get('end_date')
+            
+            domain = []
+            if start_date:
+                domain.append(('create_date', '>=', start_date))
+            if end_date:
+                domain.append(('create_date', '<=', end_date))
+
+            # Counts
+            total_books = request.env['library.book'].sudo().search_count(domain)
+            total_users = request.env['res.users'].sudo().search_count(domain + [('is_admin', '=', False)])
+            total_categories = request.env['library.category'].sudo().search_count([]) # Categories are usually static
+            total_views = request.env['book.views'].sudo().search_count(domain)
+            total_ads = request.env['library.advertisement'].sudo().search_count(domain)
+
+            # Categories for Pie Chart
+            categories = request.env['library.category'].sudo().search([])
+            categories_data = []
+            for cat in categories:
+                # Apply the same date filters to the category book count
+                cat_domain = domain + [('category_id', '=', cat.id)]
+                book_count = request.env['library.book'].sudo().search_count(cat_domain)
+                if book_count > 0:
+                    percentage = (book_count / total_books * 100) if total_books > 0 else 0
+                    categories_data.append({
+                        'name': cat.name_ar or cat.name_en,
+                        'count': book_count,
+                        'percentage': round(percentage, 1)
+                    })        
+
+            data = {
+                'total_books': total_books,
+                'total_users': total_users,
+                'total_categories': total_categories,
+                'total_views': total_views,
+                'total_ads': total_ads,
+                'categories_distribution': categories_data,
+            }
+
+            return http.Response(
+                json.dumps({'status': 200, 'data': data}, ensure_ascii=False),
+                content_type='application/json'
+            )
+        except Exception as e:
+            return http.Response(
+                json.dumps({'status': 500, 'error': str(e)}, ensure_ascii=False),
+                content_type='application/json'
+            )
