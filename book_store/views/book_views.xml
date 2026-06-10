@@ -9,10 +9,6 @@
                 <field name="name_ar"/>
                 <field name="name_en"/>
                 <field name="name_ind"/>
-                <field name="author_ar"/>
-                <field name="author_en"/>
-                <field name="author_ind"/>
-                <field name="number_of_pages"/>
                 <field name="category_id"/>
             </list>
         </field>
@@ -30,20 +26,10 @@
                         <field name="name_ar"/>
                         <field name="name_en"/>
                         <field name="name_ind"/>
-                        <field name="author_ar"/>
-                        <field name="author_en"/>
-                        <field name="author_ind"/>
-                        <field name="number_of_pages"/>
                         <field name="category_id"/>
                         <field name="file_ar" />
                         <field name="file_en" />
                         <field name="file_ind" />
-                    </group>
-
-                    <group>
-                        <field name="description_ar"/>
-                        <field name="description_en"/>
-                        <field name="description_ind"/>
                     </group>
                 </sheet>
             </form>

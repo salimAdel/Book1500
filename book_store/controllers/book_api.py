@@ -70,7 +70,7 @@ class LibraryBookAPI(http.Controller):
             if category_id:
                 domain.append(('category_id', '=', int(category_id)))
 
-            sort_by = kwargs.get('sort_by', 'id')      # مثال: name_en, author_en, number_of_pages
+            sort_by = kwargs.get('sort_by', 'id')      # مثال: name_en, name_ar, id
             order = kwargs.get('order', 'asc')         # asc أو desc
             if order not in ['asc', 'desc']:
                 order = 'asc'
@@ -86,15 +86,8 @@ class LibraryBookAPI(http.Controller):
                     'name_ar': safe_val(book.name_ar),
                     'name_en': safe_val(book.name_en),
                     'name_ind': safe_val(book.name_ind),
-                    'author_ar': safe_val(book.author_ar),
-                    'author_en': safe_val(book.author_en),
-                    'author_ind': safe_val(book.author_ind),
-                    'number_of_pages': safe_val(book.number_of_pages),
                     'category_id': book.category_id.id if book.category_id else None,
                     'category_name': book.category_id.name_en if book.category_id else '',
-                    'description_ar': safe_val(book.description_ar),
-                    'description_en': safe_val(book.description_en),
-                    'description_ind': safe_val(book.description_ind),
                     'image': _get_attachment(book.id, 'image') if book.image else None,
                     'book_views_count': book.book_views_count,
                     })
@@ -159,15 +152,48 @@ class LibraryBookAPI(http.Controller):
             'name_ar': safe_val(book.name_ar),
             'name_en': safe_val(book.name_en),
             'name_ind': safe_val(book.name_ind),
-            'author_ar': safe_val(book.author_ar),
-            'author_en': safe_val(book.author_en),
-            'author_ind': safe_val(book.author_ind),
-            'number_of_pages': safe_val(book.number_of_pages),
             'category_id': book.category_id.id if book.category_id else None,
             'category_name': book.category_id.name_en if book.category_id else '',
-            'description_ar': safe_val(book.description_ar),
-            'description_en': safe_val(book.description_en),
-            'description_ind': safe_val(book.description_ind),
+            'image': image,
+            'book_views_count': book.book_views_count,
+            'file_ar': file_ar,
+            'file_en': file_en,
+            'file_ind': file_ind,
+        }
+        return http.Response(
+            json.dumps({'status': 200, 'data': data}, ensure_ascii=False),
+            content_type='application/json'
+        )
+
+    # ✅ Get single book by ID (Public - No Auth required)
+    @http.route('/api/library/public/book/<int:id>', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_book_public(self, id, **kwargs):
+        book = request.env['library.book'].sudo().browse(id)
+        if not book.exists():
+            return http.Response(
+                json.dumps({'status': 404, 'error': 'Book not found'}),
+                content_type='application/json'
+            )
+        
+        # Log view if user is logged in
+        if request.session.uid:
+            book.env['book.views'].sudo().create({
+                'user_id': request.session.uid,
+                'book_id': book.id,
+            })
+
+        image = book.image.decode('utf-8') if book.image else None
+        file_ar = book.file_ar.decode('utf-8') if book.file_ar else None
+        file_en = book.file_en.decode('utf-8') if book.file_en else None
+        file_ind = book.file_ind.decode('utf-8') if book.file_ind else None
+
+        data = {
+            'id': book.id,
+            'name_ar': safe_val(book.name_ar),
+            'name_en': safe_val(book.name_en),
+            'name_ind': safe_val(book.name_ind),
+            'category_id': book.category_id.id if book.category_id else None,
+            'category_name': book.category_id.name_en if book.category_id else '',
             'image': image,
             'book_views_count': book.book_views_count,
             'file_ar': file_ar,
@@ -218,9 +244,7 @@ class LibraryBookAPI(http.Controller):
 
             for field in [
                 'name_ar', 'name_en', 'name_ind',
-                'author_ar', 'author_en', 'author_ind',
-                'number_of_pages', 'category_id',
-                'description_ar', 'description_en', 'description_ind',
+                'category_id',
                 'image', 'file_ar', 'file_en', 'file_ind'
             ]:
                 if field in request.httprequest.files:
