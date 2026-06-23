@@ -242,14 +242,14 @@ class LibraryBookAPI(http.Controller):
                     content_type='application/json'
                 )
 
-            for field in [
+            for vals in [
                 'name_ar', 'name_en', 'name_ind',
                 'category_id',
                 'image', 'file_ar', 'file_en', 'file_ind'
             ]:
-                if field in request.httprequest.files:
+                if vals in request.httprequest.files:
                     fileobj = request.httprequest.files[field]
-                    vals[field] = base64.b64encode(fileobj.read()).decode('utf-8')
+                    vals[vals] = base64.b64encode(fileobj.read()).decode('utf-8')
             return http.Response(
                 json.dumps({'status': 200, 'message': 'Book updated'}),
                 content_type='application/json'
