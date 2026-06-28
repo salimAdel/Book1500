@@ -233,8 +233,6 @@ class LibraryBookAPI(http.Controller):
     @http.route('/api/library/book/<int:id>', type='http', auth='public', methods=['PUT'], csrf=False)
     def update_book(self, id, **kwargs):
         try:
-            raw_data = request.httprequest.data.decode()
-            vals = json.loads(raw_data)
             book = request.env['library.book'].sudo().browse(id)
             if not book.exists():
                 return http.Response(
@@ -242,14 +240,49 @@ class LibraryBookAPI(http.Controller):
                     content_type='application/json'
                 )
 
-            for vals in [
+            # Try parsing raw data as JSON
+            raw_data = request.httprequest.data.decode() if request.httprequest.data else ''
+            vals = {}
+            if raw_data:
+                try:
+                    vals = json.loads(raw_data)
+                except json.JSONDecodeError:
+                    pass
+
+            # Combine with kwargs/params if available (form/query fields)
+            for key, val in kwargs.items():
+                if key not in vals:
+                    vals[key] = val
+
+            # List of valid fields to be updated
+            valid_fields = [
                 'name_ar', 'name_en', 'name_ind',
                 'category_id',
                 'image', 'file_ar', 'file_en', 'file_ind'
-            ]:
-                if vals in request.httprequest.files:
+            ]
+
+            # Handle files (uploaded as multipart/form-data)
+            for field in ['image', 'file_ar', 'file_en', 'file_ind']:
+                if field in request.httprequest.files:
                     fileobj = request.httprequest.files[field]
-                    vals[vals] = base64.b64encode(fileobj.read()).decode('utf-8')
+                    vals[field] = base64.b64encode(fileobj.read()).decode('utf-8')
+
+            # Filter vals to only include valid fields and handle specific field types
+            update_vals = {}
+            for field in valid_fields:
+                if field in vals:
+                    if field == 'category_id':
+                        try:
+                            # Handle empty value or conversion
+                            update_vals[field] = int(vals[field]) if vals[field] else False
+                        except (ValueError, TypeError):
+                            pass
+                    else:
+                        update_vals[field] = vals[field]
+
+            if update_vals:
+                book.write(update_vals)
+
             return http.Response(
                 json.dumps({'status': 200, 'message': 'Book updated'}),
                 content_type='application/json'
